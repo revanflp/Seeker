@@ -1,6 +1,7 @@
 # made by Revan on the 11/23/2024 
 
 from requests import get
+from typing import Generator
 import json
 import click
 
@@ -12,7 +13,7 @@ BASE_URL2 = "https://web.archive.org/web/"
 
 # ===== Proceed to scrapping =====
 
-def handle(url : str) -> list: 
+def handle(url: str) -> Generator[str, None, None] : 
     print(f"[STATUS] start scrapping : {url}")
     req = get(BASE_URL.format(url))
     z = json.loads(req.text)
@@ -26,23 +27,24 @@ def handle(url : str) -> list:
             search = z[n][0]
             ids = z[n][3]
             if search : 
-                URL.append(BASE_URL2+""+ids+"/"+search)
+                yield BASE_URL2 + "" + ids + "/" + search
                 n+=1
             else : 
                 n+=1
 
     print(f"[CONSOLE] Successfully scrapped {len(URL)} urls")
-    return URL
 
 # ===== Save the urls =====
 
 @click.command()
 @click.argument('url')
 def main(url : str) :
+    gen = handle(url)
     with open('results.txt' , 'a+') as f :
-        for y in handle(url) : 
+        for y in gen : 
                 f.write(y+"\n")
     
+    print(f"[CONSOLE] Successfully scrapped {len(list(gen))} urls")
     print("[CONSOLE] saved to results.txt")
 
 if __name__ == "__main__" : 
