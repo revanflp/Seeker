@@ -15,24 +15,28 @@ BASE_URL2 = "https://web.archive.org/web/"
 
 def handle(url: str) -> Generator[str, None, None] : 
     print(f"[STATUS] start scrapping : {url}")
-    req = get(BASE_URL.format(url))
-    z = json.loads(req.text)
-    n = 0
 
-    for _ in z : 
-        if z[n][0] == 'original' : 
-            n+=1
-            continue
-        else : 
-            search = z[n][0]
-            ids = z[n][3]
-            if search : 
-                yield BASE_URL2 + "" + ids + "/" + search
+    try : 
+        req = get(BASE_URL.format(url))
+        z = json.loads(req.text)
+        n = 0
+
+        for _ in z : 
+            if z[n][0] == 'original' : 
                 n+=1
+                continue
             else : 
-                n+=1
+                search = z[n][0]
+                ids = z[n][3]
+                if search : 
+                    yield BASE_URL2 + "" + ids + "/" + search
+                    n+=1
+                else : 
+                    n+=1
 
-    print(f"[CONSOLE] Successfully scrapped {len(URL)} urls")
+        print(f"[CONSOLE] Successfully scrapped {n} urls")
+    except Exception as e  :
+        print(f"[CONSOLE] Error while scraping : {str(e)}")
 
 # ===== Save the urls =====
 
@@ -44,7 +48,6 @@ def main(url : str) :
         for y in gen : 
                 f.write(y+"\n")
     
-    print(f"[CONSOLE] Successfully scrapped {len(list(gen))} urls")
     print("[CONSOLE] saved to results.txt")
 
 if __name__ == "__main__" : 
